@@ -1,0 +1,12 @@
+﻿using QuestLog.Domain.Common;
+
+namespace QuestLog.Domain.Entities;
+
+public class GamePlatform : BaseEntity
+{
+    public Guid GameId { get; set; }
+    public Guid PlatformId { get; set; }
+
+    public Game? Game { get; set; }
+    public Platform? Platform { get; set; }
+}
