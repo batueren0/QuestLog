@@ -36,7 +36,7 @@ public class UpdateGameValidator : AbstractValidator<UpdateGameRequest>
         RuleFor(x => x.PlatformIds)
             .NotEmpty()
             .Must(ids => ids.Distinct().Count() == ids.Count)
-            .WithMessage("Platfotm list cannot contain duplicate ids");
+            .WithMessage("Platform list cannot contain duplicate ids");
 
     }
 
