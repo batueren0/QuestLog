@@ -18,22 +18,12 @@ public class GameService(IUnitOfWork uow,
     {
         var validationResult = await createValidator.ValidateAsync(request);
         if (!validationResult.IsValid)
-            return Result<GameDetailResponse>.Failure(ErrorType.Validation,string.Join(", ",validationResult.Errors.Select(e => e.ErrorMessage)));
+            return Result<GameDetailResponse>.Failure(ErrorType.Validation, string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
 
-        var developer = await uow.Developers.GetByIdAsync(request.DeveloperId);
-        if (developer is null)
-            return Result<GameDetailResponse>.Failure(ErrorType.Validation, "Developer not found.");
-
-
-        var existingGenreCount = await uow.Genres.CountExistingAsync(request.GenreIds);
-        if (existingGenreCount != request.GenreIds.Count)
-            return Result<GameDetailResponse>.Failure(ErrorType.Validation, "One or more genres were not found.");
-
-
-        var existingPlatformCount = await uow.Platforms.CountExistingAsync(request.PlatformIds);
-        if (existingPlatformCount != request.PlatformIds.Count)
-            return Result<GameDetailResponse>.Failure(ErrorType.Validation, "One or more platforms were not found.");
+        var referenceError = await ValidateReferencesAsync(request.DeveloperId, request.GenreIds, request.PlatformIds);
+        if (referenceError is not null)
+            return Result<GameDetailResponse>.Failure(ErrorType.Validation, referenceError);
 
         var slug = request.Title.ToKebabCase();
         var slugExists = await uow.Games.SlugExistsAsync(slug);
@@ -63,9 +53,79 @@ public class GameService(IUnitOfWork uow,
 
     }
 
-    public Task<Result> DeleteAsync(Guid id)
+    public async Task<Result> UpdateAsync(Guid id, UpdateGameRequest request)
     {
-        throw new NotImplementedException();
+
+        var validationResult = await updateValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return Result.Failure(ErrorType.Validation, string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+
+        var game = await uow.Games.GetByIdWithRelationsAsync(id);
+        if (game is null)
+            return Result.Failure(ErrorType.NotFound, "Game not found.");
+
+        var referencesError = await ValidateReferencesAsync(request.DeveloperId, request.GenreIds, request.PlatformIds);
+        if (referencesError is not null)
+            return Result.Failure(ErrorType.Validation, referencesError);
+
+        var slug = request.Title.ToKebabCase();
+        var slugExists = await uow.Games.SlugExistsAsync(slug, id);
+        if (slugExists)
+            return Result.Failure(ErrorType.Conflict, "A game with this title already exists.");
+
+        game.Title = request.Title;
+        game.Slug = slug;
+        game.Description = request.Description;
+        game.ReleaseDate = request.ReleaseDate;
+        game.CoverImageUrl = request.CoverImageUrl;
+        game.DeveloperId = request.DeveloperId;
+
+        var genresToRemove = game.Genres
+            .Where(gg => !request.GenreIds.Contains(gg.GenreId))
+            .ToList();
+
+        foreach(var gameGenre in genresToRemove)
+            game.Genres.Remove(gameGenre);
+
+        var genreIdsToAdd = request.GenreIds
+            .Where(genreId => !game.Genres.Any(gg => gg.GenreId == genreId))
+            .ToList();
+
+
+        var platformsToRemove = game.Platforms
+            .Where(gp => !request.PlatformIds.Contains(gp.PlatformId))
+            .ToList();
+
+        foreach(var gamePlatform in platformsToRemove)
+            game.Platforms.Remove(gamePlatform);
+
+        var platformIdsToAdd = request.PlatformIds
+            .Where(platformId => !game.Platforms.Any(gp => gp.PlatformId == platformId))
+            .ToList();
+
+        foreach (var genreId in genreIdsToAdd)
+            game.Genres.Add(new GameGenre { GenreId = genreId });
+
+        foreach (var platformId in platformIdsToAdd)
+            game.Platforms.Add(new GamePlatform { PlatformId = platformId});
+
+
+        uow.Games.Update(game);
+        await uow.SaveChangesAsync();
+
+        return Result.Success();
+
+    }
+
+    public async Task<Result> DeleteAsync(Guid id)
+    {
+        var game = await uow.Games.GetByIdAsync(id);
+        if (game is null)
+            return Result.Failure(ErrorType.NotFound, "Game not found.");
+
+        uow.Games.Delete(game);
+        await uow.SaveChangesAsync();
+        return Result.Success();
     }
 
     public async Task<Result<GameDetailResponse>> GetBySlugAsync(string slug)
@@ -96,12 +156,6 @@ public class GameService(IUnitOfWork uow,
         };
     }
 
-    public Task<Result> UpdateAsync(Guid id, UpdateGameRequest request)
-    {
-        throw new NotImplementedException();
-    }
-
-
     private static GameSummaryResponse ToSummaryResponse(Game game) => new(
         game.Id,
         game.Title,
@@ -123,4 +177,23 @@ public class GameService(IUnitOfWork uow,
         game.Genres.Select(gg => new GenreResponse(gg.Genre!.Id, gg.Genre.Name, gg.Genre.Slug)).ToList(),
         game.Platforms.Select(gp => new PlatformResponse(gp.Platform!.Id, gp.Platform.Name, gp.Platform.Slug)).ToList()
         );
+
+    private async Task<string?> ValidateReferencesAsync(Guid developerId, IReadOnlyList<Guid> genreIds, IReadOnlyList<Guid> platformIds)
+    {
+        var developer = await uow.Developers.GetByIdAsync(developerId);
+        if (developer is null)
+            return "Developer not found.";
+
+
+        var existingGenreCount = await uow.Genres.CountExistingAsync(genreIds);
+        if (existingGenreCount != genreIds.Count)
+            return "One or more genres were not found.";
+
+
+        var existingPlatformCount = await uow.Platforms.CountExistingAsync(platformIds);
+        if (existingPlatformCount != platformIds.Count)
+            return "One or more platforms were not found.";
+
+        return null;
+    }
 }

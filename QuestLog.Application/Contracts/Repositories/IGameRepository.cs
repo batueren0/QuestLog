@@ -8,4 +8,5 @@ public interface IGameRepository : IRepository<Game>
     Task<Game?> GetBySlugWithDetailsAsync(string slug);
     Task<PagedResult<Game>> GetPagedAsync(int page, int pageSize, string? search, Guid? genreId, Guid? platformId);
     Task<bool> SlugExistsAsync(string slug, Guid? excludeId = null);
+    Task<Game?> GetByIdWithRelationsAsync(Guid id); 
 }
