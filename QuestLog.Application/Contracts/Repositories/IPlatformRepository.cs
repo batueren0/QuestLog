@@ -7,4 +7,5 @@ public interface IPlatformRepository : IRepository<Platform>
 {
     Task<bool> NameExistsAsync(string name, Guid? excludeId = null);
     Task<bool> HasGamesAsync(Guid id);
+    Task<int> CountExistingAsync(IReadOnlyList<Guid> ids);
 }

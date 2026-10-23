@@ -96,4 +96,5 @@ public class GenreService(
 
 
     private static GenreResponse ToResponse(Genre genre) => new(genre.Id, genre.Name, genre.Slug);
+
 }
