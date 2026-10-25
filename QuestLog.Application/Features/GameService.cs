@@ -91,6 +91,8 @@ public class GameService(IUnitOfWork uow,
             .Where(genreId => !game.Genres.Any(gg => gg.GenreId == genreId))
             .ToList();
 
+        foreach (var genreId in genreIdsToAdd)
+            game.Genres.Add(new GameGenre { GenreId = genreId });
 
         var platformsToRemove = game.Platforms
             .Where(gp => !request.PlatformIds.Contains(gp.PlatformId))
@@ -102,9 +104,6 @@ public class GameService(IUnitOfWork uow,
         var platformIdsToAdd = request.PlatformIds
             .Where(platformId => !game.Platforms.Any(gp => gp.PlatformId == platformId))
             .ToList();
-
-        foreach (var genreId in genreIdsToAdd)
-            game.Genres.Add(new GameGenre { GenreId = genreId });
 
         foreach (var platformId in platformIdsToAdd)
             game.Platforms.Add(new GamePlatform { PlatformId = platformId});

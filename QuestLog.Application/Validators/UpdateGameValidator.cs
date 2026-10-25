@@ -21,6 +21,7 @@ public class UpdateGameValidator : AbstractValidator<UpdateGameRequest>
             .WithMessage("Release date cannot be more than 5 years in the future.");
 
         RuleFor(x => x.CoverImageUrl)
+            .MaximumLength(500)
             .Must(BeAValidUrl)
             .WithMessage("Cover image URL must be a valid http or https address")
             .When(x => !string.IsNullOrEmpty(x.CoverImageUrl));
