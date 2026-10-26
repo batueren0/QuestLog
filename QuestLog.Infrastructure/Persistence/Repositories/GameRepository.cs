@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using QuestLog.Application.Common;
 using QuestLog.Application.Contracts.Repositories;
 using QuestLog.Domain.Entities;
