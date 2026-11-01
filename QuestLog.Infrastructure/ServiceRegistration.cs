@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QuestLog.Application.Common;
+using QuestLog.Application.Contracts.Services;
 using QuestLog.Domain.Entities;
+using QuestLog.Infrastructure.Authentication;
 using QuestLog.Infrastructure.Persistence.Common;
 using QuestLog.Infrastructure.Persistence.Contexts;
 
@@ -24,6 +26,9 @@ public static class ServiceRegistration
         })
         .AddRoles<AppRole>()
         .AddEntityFrameworkStores<AppDbContext>();
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddScoped<ITokenService, JwtTokenService>();
 
         return services;
     }
