@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuestLog.Application.Common;
 using QuestLog.Application.Contracts.Services;
 using QuestLog.Application.DTOs.Developers;
 
@@ -27,7 +28,7 @@ public class DevelopersController(IDeveloperService developerService) : ApiContr
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Create([FromBody] CreateDeveloperRequest request)
     {
         var result = await developerService.CreateAsync(request);
@@ -38,7 +39,7 @@ public class DevelopersController(IDeveloperService developerService) : ApiContr
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDeveloperRequest request)
     {
         var result = await developerService.UpdateAsync(id, request);
@@ -49,7 +50,7 @@ public class DevelopersController(IDeveloperService developerService) : ApiContr
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await developerService.DeleteAsync(id);

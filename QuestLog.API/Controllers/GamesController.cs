@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuestLog.Application.Common;
 using QuestLog.Application.Contracts.Services;
 using QuestLog.Application.DTOs.Games;
 
@@ -33,7 +34,7 @@ public class GamesController(IGameService gameService) : ApiControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Create(CreateGameRequest request)
     {
         var result = await gameService.CreateAsync(request);
@@ -44,7 +45,7 @@ public class GamesController(IGameService gameService) : ApiControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id ,UpdateGameRequest request)
     {
         var result = await gameService.UpdateAsync(id, request);
@@ -55,7 +56,7 @@ public class GamesController(IGameService gameService) : ApiControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await gameService.DeleteAsync(id);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuestLog.Application.Common;
 using QuestLog.Application.Contracts.Services;
 using QuestLog.Application.DTOs.Genres;
 
@@ -27,7 +28,7 @@ public class GenresController(IGenreService genreService) : ApiControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Create([FromBody] CreateGenreRequest request)
     {
         var result = await genreService.CreateAsync(request);
@@ -38,7 +39,7 @@ public class GenresController(IGenreService genreService) : ApiControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id ,[FromBody] UpdateGenreRequest request)
     {
         var result = await genreService.UpdateAsync(id, request);
@@ -49,7 +50,7 @@ public class GenresController(IGenreService genreService) : ApiControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await genreService.DeleteAsync(id);

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using QuestLog.API.Seeding;
 using QuestLog.Application;
 using QuestLog.Infrastructure;
 using QuestLog.Infrastructure.Authentication;
@@ -37,7 +38,7 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-
+await IdentitySeeder.SeedAsync(app.Services, app.Configuration);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
