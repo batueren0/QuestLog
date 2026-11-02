@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using QuestLog.Application.Common;
 using QuestLog.Domain.Entities;
 
@@ -45,10 +44,6 @@ public static class IdentitySeeder
             var roleResult = await userManager.AddToRoleAsync(adminUser, Roles.Admin);
             if(!roleResult.Succeeded)
                 throw new InvalidOperationException(string.Join(", ", roleResult.Errors.Select(e => e.Description)));
-        }
-            
-            
-                
-        
+        }   
     }
 }
