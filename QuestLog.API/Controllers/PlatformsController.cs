@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using QuestLog.Application.Contracts.Services;
 using QuestLog.Application.DTOs.Platforms;
 
@@ -26,6 +27,7 @@ public class PlatformsController(IPlatformService platformService) : ApiControll
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CreatePlatformRequest request)
     {
         var result = await platformService.CreateAsync(request);
@@ -36,6 +38,7 @@ public class PlatformsController(IPlatformService platformService) : ApiControll
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePlatformRequest request)
     {
         var result = await platformService.UpdateAsync(id, request);
@@ -47,6 +50,7 @@ public class PlatformsController(IPlatformService platformService) : ApiControll
 
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await platformService.DeleteAsync(id);

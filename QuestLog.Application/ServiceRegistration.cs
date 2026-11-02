@@ -16,6 +16,7 @@ public static class ServiceRegistration
         services.AddScoped<IPlatformService, PlatformService>();
         services.AddScoped<IDeveloperService, DeveloperService>();
         services.AddScoped<IGameService, GameService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }
